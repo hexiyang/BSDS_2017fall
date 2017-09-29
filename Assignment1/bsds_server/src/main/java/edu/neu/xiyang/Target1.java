@@ -1,6 +1,8 @@
 package edu.neu.xiyang;
 
+import javax.print.attribute.standard.Media;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -8,8 +10,8 @@ import javax.ws.rs.core.MediaType;
 /**
  * Root resource (exposed at "myresource" path)
  */
-@Path("myresource")
-public class MyResource {
+@Path("target1")
+public class Target1 {
 
     /**
      * Method handling HTTP GET requests. The returned object will be sent
@@ -20,7 +22,13 @@ public class MyResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
-        return "Got it!";
+        return "Got it from target1!";
+    }
+
+    @POST
+    @Produces(MediaType.TEXT_PLAIN)
+    public String postIt() {
+        return "Posted it to target1!";
     }
 }
 
