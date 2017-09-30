@@ -45,7 +45,7 @@ public class postRequestThread implements Runnable{
 
             start = System.currentTimeMillis();
             try {
-                Invocation.Builder invocationBuilder1 = target1.request(MediaType.TEXT_PLAIN);
+                Invocation.Builder invocationBuilder1 = target2.request(MediaType.TEXT_PLAIN);
                 Response response = invocationBuilder1.post(Entity.entity("post", MediaType.TEXT_PLAIN));
                 String output = response.readEntity(String.class);
                 response.close();
