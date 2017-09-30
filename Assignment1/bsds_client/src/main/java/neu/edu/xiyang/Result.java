@@ -1,4 +1,4 @@
-package test.edu.xiyang;
+package neu.edu.xiyang;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +12,8 @@ public class Result {
     int postRequestFailNum;
     int getRequestSuccessNum;
     int postRequestSuccessNum;
+//    List<Long> getTimestamps;
+//    List<Long> postTimestamps;
 
     public Result() {
         getLatenciesSuccess = new ArrayList<Long>();
@@ -22,6 +24,8 @@ public class Result {
         postRequestFailNum = 0;
         getRequestSuccessNum = 0;
         postRequestSuccessNum = 0;
+//        getTimestamps = new ArrayList<Long>();
+//        postTimestamps = new ArrayList<Long>();
     }
 
     public Result(List<Long> getLatenciesSuccess, List<Long> postLatenciesSuccess,
@@ -36,5 +40,8 @@ public class Result {
         this.postRequestFailNum = postRequestFailNum;
         this.getRequestSuccessNum = getRequestSuccessNum;
         this.postRequestSuccessNum = postRequestSuccessNum;
+        // Timestamps
+//        this.getTimestamps = getTimestamp;
+//        this.postTimestamps = postTimestamp;
     }
 }

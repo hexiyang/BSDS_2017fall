@@ -4,15 +4,20 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
-public class configInfo {
-    public int threadNum = 100;
+public class ConfigInfo {
+    public int threadNum = 10;
     public int iterationNum = 100;
-    public String ipAddress = "34.215.58.78";
-    public String port = "8080";
+    private String ipAddress = "34.215.58.78";
+    private String port = "8080";
+    public WebTarget webTarget;
 
-    public WebTarget getWebTarget(String path) {
+    public ConfigInfo() {
+        webTarget = getWebTarget();
+    }
+
+    private WebTarget getWebTarget() {
         Client client = ClientBuilder.newClient();
-        WebTarget webTarget = client.target("http://" + ipAddress + ":" + port).path("bsds-server/webapi/" + path);
+        WebTarget webTarget = client.target("http://" + ipAddress + ":" + port).path("bsds-server/webapi/target1");
         return webTarget;
     }
 }

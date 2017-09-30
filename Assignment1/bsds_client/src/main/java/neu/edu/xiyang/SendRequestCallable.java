@@ -1,4 +1,4 @@
-package test.edu.xiyang;
+package neu.edu.xiyang;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
@@ -28,11 +28,14 @@ public class SendRequestCallable implements Callable<Result>{
         int getSuccessNum = 0;
         int postFailNum = 0;
         int postSuccessNum = 0;
+        List<Long> getTimestamps = new ArrayList<Long>();
+        List<Long> postTimestamps = new ArrayList<Long>();
 
         long startTime = System.currentTimeMillis();
         for (int i = 0; i < iterationNum; i++) {
             // Send the Get Request
             long start = System.currentTimeMillis();
+            getTimestamps.add(start);
             try {
                 Invocation.Builder invocationBuilder = target.request(MediaType.TEXT_PLAIN);
                 String response = invocationBuilder.get(String.class);
@@ -47,6 +50,7 @@ public class SendRequestCallable implements Callable<Result>{
 
             // Send the Post Request
             start = System.currentTimeMillis();
+            postTimestamps.add(start);
             try {
                 Invocation.Builder invocationBuilder = target.request(MediaType.TEXT_PLAIN);
                 Response response = invocationBuilder.post(Entity.entity("post", MediaType.TEXT_PLAIN));

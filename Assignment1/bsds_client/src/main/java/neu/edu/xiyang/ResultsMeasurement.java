@@ -1,5 +1,7 @@
-package test.edu.xiyang;
+package neu.edu.xiyang;
 
+import java.io.*;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,6 +21,9 @@ public class ResultsMeasurement {
                 finalResult.getRequestFailNum += result.getRequestFailNum;
                 finalResult.postRequestSuccessNum += result.postRequestSuccessNum;
                 finalResult.postRequestFailNum += result.postRequestFailNum;
+                // Timestamp
+//                finalResult.getTimestamps.addAll(result.getTimestamps);
+//                finalResult.postTimestamps.addAll(result.postTimestamps);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -26,7 +31,7 @@ public class ResultsMeasurement {
         }
     }
     public void generateStatistics(long wallTime) {
-        System.out.println("\n\n\n\n\n\n\n\n" +
+        System.out.println("\n\n" +
                 "***************************************************\n" +
                 "*                Statistic Results                *\n" +
                 "***************************************************\n" +
@@ -76,7 +81,33 @@ public class ResultsMeasurement {
         System.out.println("[Successed 95th Latency]: " + percentileLatency(successLatencies, 95) + " ms ");
         System.out.println("[   Failed 95th Latency]: " + percentileLatency(failLatencies, 95) + " ms ");
     }
+    /*
+    // For timestamps
+    public void writeData() throws IOException{
+        FileWriter fw = new FileWriter("/Users/Xiyang/Downloads/Get.dat", false);
+        fw.write("Timestamp::Latency\n");
+        int i = 0;
+        for (long timestamp : finalResult.getTimestamps) {
+            Timestamp ts = new Timestamp(timestamp);
+            String newline = ts.toString() + "::" + finalResult.getLatenciesSuccess.get(i).toString() + "\n";
+            fw.write(newline);
+            i++;
+        }
+        fw.close();
+        FileWriter fw1 = new FileWriter("/Users/Xiyang/Downloads/Post.dat", false);
+        fw1.write("Timestamp::Latency\n");
+        i = 0;
+        for (long timestamp : finalResult.postTimestamps) {
+            Timestamp ts = new Timestamp(timestamp);
+            String newline = ts.toString() + "::" + finalResult.postLatenciesSuccess.get(i).toString() + "\n";
+            fw1.write(newline);
+            i++;
+        }
+        fw1.close();
+    }*/
 
+
+    // Help functions
     private long meanLatency (List<Long> list) {
         if (list.size() > 0) {
             long sum = 0;

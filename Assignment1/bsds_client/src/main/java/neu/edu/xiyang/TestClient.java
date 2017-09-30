@@ -1,5 +1,8 @@
-package test.edu.xiyang;
+package neu.edu.xiyang;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -8,7 +11,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class TestClient {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
         ConfigInfo config = new ConfigInfo();
         int threadNum = config.threadNum;
         // Create Tasks
@@ -35,6 +38,7 @@ public class TestClient {
             System.out.println("The runtime for all threads to complete is: " + wallTime + " ms");
             ResultsMeasurement measurement = new ResultsMeasurement(futures);
             measurement.generateStatistics(wallTime);
+//            measurement.writeData();
         } else {
             System.out.println("The executor has not shutdown!");
         }
