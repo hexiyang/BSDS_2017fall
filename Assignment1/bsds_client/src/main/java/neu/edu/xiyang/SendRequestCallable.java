@@ -39,7 +39,7 @@ public class SendRequestCallable implements Callable<Result>{
             try {
                 Invocation.Builder invocationBuilder = target.request(MediaType.TEXT_PLAIN);
                 String response = invocationBuilder.get(String.class);
-                System.out.println("[" + i + "]" + " Get response of " + Thread.currentThread() + " is \"" + response + "\"");
+                //System.out.println("[" + i + "]" + " Get response of " + Thread.currentThread() + " is \"" + response + "\"");
                 getSuccessNum++;
                 getLatenciesSuccess.add(System.currentTimeMillis() - start);
             } catch (Exception e) {
@@ -56,7 +56,7 @@ public class SendRequestCallable implements Callable<Result>{
                 Response response = invocationBuilder.post(Entity.entity("post", MediaType.TEXT_PLAIN));
                 String output = response.readEntity(String.class);
                 response.close();
-                System.out.println("[" + i + "]" + " Post response of " + Thread.currentThread() + " is \"" + output + "\"");
+                //System.out.println("[" + i + "]" + " Post response of " + Thread.currentThread() + " is \"" + output + "\"");
                 postSuccessNum++;
                 postLatenciesSuccess.add(System.currentTimeMillis() - start);
             } catch (Exception e) {

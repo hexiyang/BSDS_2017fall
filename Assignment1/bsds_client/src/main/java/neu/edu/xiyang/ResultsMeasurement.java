@@ -71,15 +71,15 @@ public class ResultsMeasurement {
         System.out.println("[    Total Mean   Latency]: " + meanLatency(totalLatencies) + " ms ");
         System.out.println("[Successed Mean   Latency]: " + meanLatency(successLatencies) + " ms ");
         System.out.println("[   Failed Mean   Latency]: " + meanLatency(failLatencies) + " ms ");
-        System.out.println("[    Total Median Latency]: " + percentileLatency(totalLatencies, 50) + " ms ");
-        System.out.println("[Successed Median Latency]: " + percentileLatency(successLatencies, 50) + " ms ");
-        System.out.println("[   Failed Median Latency]: " + percentileLatency(failLatencies, 50) + " ms ");
-        System.out.println("[    Total 99th Latency]: " + percentileLatency(totalLatencies, 99) + " ms ");
-        System.out.println("[Successed 99th Latency]: " + percentileLatency(successLatencies, 99) + " ms ");
-        System.out.println("[   Failed 99th Latency]: " + percentileLatency(failLatencies, 99) + " ms ");
-        System.out.println("[    Total 95th Latency]: " + percentileLatency(totalLatencies, 95) + " ms ");
-        System.out.println("[Successed 95th Latency]: " + percentileLatency(successLatencies, 95) + " ms ");
-        System.out.println("[   Failed 95th Latency]: " + percentileLatency(failLatencies, 95) + " ms ");
+        System.out.println("[    Total Median Latency]: " + percentileLatency(totalLatencies, 0.50) + " ms ");
+        System.out.println("[Successed Median Latency]: " + percentileLatency(successLatencies, 0.50) + " ms ");
+        System.out.println("[   Failed Median Latency]: " + percentileLatency(failLatencies, 0.50) + " ms ");
+        System.out.println("[    Total 99th Latency]: " + percentileLatency(totalLatencies, 0.99) + " ms ");
+        System.out.println("[Successed 99th Latency]: " + percentileLatency(successLatencies, 0.99) + " ms ");
+        System.out.println("[   Failed 99th Latency]: " + percentileLatency(failLatencies, 0.99) + " ms ");
+        System.out.println("[    Total 95th Latency]: " + percentileLatency(totalLatencies, 0.95) + " ms ");
+        System.out.println("[Successed 95th Latency]: " + percentileLatency(successLatencies, 0.95) + " ms ");
+        System.out.println("[   Failed 95th Latency]: " + percentileLatency(failLatencies, 0.95) + " ms ");
     }
     /*
     // For timestamps
@@ -111,22 +111,20 @@ public class ResultsMeasurement {
     private long meanLatency (List<Long> list) {
         if (list.size() > 0) {
             long sum = 0;
-            int count = 0;
             for (Long latency: list) {
                 sum += latency;
-                count++;
             }
-            return sum/count;
+            return sum/list.size();
         } else {
             return 0;
         }
 
     }
 
-    private long percentileLatency (List<Long> list, int percentile) {
+    private long percentileLatency (List<Long> list, double percentile) {
         if (list.size() > 0) {
             Collections.sort(list);
-            int index = Math.round((percentile/100) * list.size());
+            int index = (int)(percentile * list.size());
             return list.get(Math.max(index-1, 0));
         } else {
             return 0;
