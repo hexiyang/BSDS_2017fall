@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="assignment2_dependency">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/../assignment2_dependency/out/artifacts/assignment2_dependency_jar/assignment2_dependency.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
