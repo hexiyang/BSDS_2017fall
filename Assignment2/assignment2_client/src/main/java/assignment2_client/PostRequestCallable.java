@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 public class PostRequestCallable implements Callable<ResultData>{
-    private SendRequest sendRequest;
+    private HTTPRequests HTTPRequests;
     private List<RFIDLiftData> processList;
 
-    public PostRequestCallable(SendRequest sendRequest, List<RFIDLiftData> processList) {
-        this.sendRequest = sendRequest;
+    public PostRequestCallable(HTTPRequests HTTPRequests, List<RFIDLiftData> processList) {
+        this.HTTPRequests = HTTPRequests;
         this.processList = processList;
     }
 
@@ -22,7 +22,7 @@ public class PostRequestCallable implements Callable<ResultData>{
         for (RFIDLiftData rfidLiftData : processList) {
             long startTime = System.currentTimeMillis();
             try {
-                sendRequest.postRecord(rfidLiftData);
+                HTTPRequests.postRecord(rfidLiftData);
             } catch (Exception e) {
                 System.out.println(e);
                 failNum++;

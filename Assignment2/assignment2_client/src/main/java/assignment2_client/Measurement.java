@@ -22,12 +22,12 @@ public class Measurement {
     }
 
     public void printStatistics() {
-        System.out.println("\n\n" +
+        System.out.println("\n" +
                 "===================================================\n" +
                 "*                Statistic Results                *\n" +
                 "===================================================");
         // Start to print statistics
-        System.out.println("[     Wall Time]: " + wallTime);
+        System.out.println("[     Wall Time]: " + wallTime + " ms");
         System.out.println("[    Total Requests]: " + finalResult.totalNum);
         System.out.println("[   Failed Requests]: " + finalResult.failNum);
         System.out.println("[    Total Mean   Latency]: " + meanLatency(finalResult.latencies) + " ms ");

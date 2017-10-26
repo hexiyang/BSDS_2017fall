@@ -5,6 +5,8 @@ import javax.servlet.ServletContext;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,102 +27,93 @@ public class MyResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
-        return "Got it!";
+        return "Wed Oct 25 23:38";
     }
 
     @GET
     @Path("myvert")
     @Produces(MediaType.TEXT_PLAIN)
-    public String fetchBy(@QueryParam("skierID") int skierID, @QueryParam("dayNum") int dayNum) {
-
-        HashMap<Integer,Integer> cachedLift = (HashMap<Integer, Integer>) context.getAttribute("cachedLift");
-        HashMap<Integer,Integer> cachedVertical = (HashMap<Integer, Integer>) context.getAttribute("cachedVertical");
-        return "\tThe liftSum for skierID " + skierID + " is " + cachedLift.get(skierID) +
-                ", its total vertical today is " + cachedVertical.get(skierID) + "m";
+    public Response fetchBy(@QueryParam("skierID") int skierID, @QueryParam("dayNum") int dayNum) {
+        Response.Status status = Response.Status.ACCEPTED;
+        if (context.getAttribute("liftMap") == null || context.getAttribute("verticalMap") == null) {
+            SkierDAO skierDAO = (SkierDAO) context.getAttribute("skierDAO");
+            try {
+                skierDAO.createDay1Cache(context);
+            } catch (SQLException e) {
+                status = Response.Status.BAD_REQUEST;
+                e.printStackTrace();
+            }
+        }
+        HashMap<Integer,Integer> liftMap = (HashMap<Integer, Integer>) context.getAttribute("liftMap");
+        HashMap<Integer,Integer> verticalMap = (HashMap<Integer, Integer>) context.getAttribute("verticalMap");
+        int liftSum = liftMap.get(skierID);
+        int verticalSum = verticalMap.get(skierID);
+        String result = "\tThe liftSum for skierID " + skierID + " is " + liftSum +
+                ", its total vertical today is " + verticalSum + "m";
+        return Response.status(status).entity(result).build();
     }
 
     @POST
     @Path("add")
     @Consumes(MediaType.APPLICATION_JSON)
-    public String addRecord(RFIDLiftData rfidLiftData) throws Exception{
-        HashMap<Integer,Integer> cachedLift = (HashMap<Integer, Integer>) context.getAttribute("cachedLift");
-        HashMap<Integer,Integer> cachedVertical = (HashMap<Integer, Integer>) context.getAttribute("cachedVertical");
-        int skierID = rfidLiftData.getSkierID();
-        int liftID = rfidLiftData.getLiftID();
-        int vertical = 0;
-        if (liftID < 11) {
-            vertical=200;
-        } else if (liftID < 21) {
-            vertical = 300;
-        } else if (liftID < 31) {
-            vertical = 400;
-        } else {
-            vertical = 500;
-        }
-        if (cachedLift.containsKey(rfidLiftData.getSkierID())) {
-            int temp = cachedLift.get(skierID);
-            cachedLift.put(skierID, liftID+temp);
-        } else {
-            cachedLift.put(skierID, liftID);
-        }
-        if (cachedVertical.containsKey(rfidLiftData.getSkierID())) {
-            int temp = cachedVertical.get(skierID);
-            cachedVertical.put(skierID, vertical+temp);
-        } else {
-            cachedVertical.put(skierID, vertical);
-        }
+    public Response addRecord(RFIDLiftData rfidLiftData) throws Exception{
         List<RFIDLiftData> cachedList = (List<RFIDLiftData>) context.getAttribute("cachedList");
+        String result;
         int chunkSize = (int) context.getAttribute("chunkSize");
         cachedList.add(rfidLiftData);
         if (cachedList.size() >= chunkSize) {
             context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
             SkierDAO skierDAO = (SkierDAO) context.getAttribute("skierDAO");
             int successNum = skierDAO.loadRecords(cachedList);
-            return "post added, successful loaded data, successNum is " + successNum;
+            result =  "post added, successful loaded data, successNum is " + successNum;
         }
-        return "\tpost added, skierID is " + rfidLiftData.getSkierID();
+        result = "\tpost added, skierID is " + rfidLiftData.getSkierID();
+        return Response.ok().entity(result).build();
     }
 
     @GET
     @Path("endLoading")
     @Produces(MediaType.TEXT_PLAIN)
-    public String endLoading() {
+    public Response endLoading() {
         List<RFIDLiftData> cachedList = (List<RFIDLiftData>) context.getAttribute("cachedList");
         context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
         SkierDAO skierDAO = (SkierDAO) context.getAttribute("skierDAO");
         int successNum = skierDAO.loadRecords(cachedList);
-        return "endLoding, finish the remaining " + cachedList.size() + " records, successNum is " + successNum;
+        String result= "endLoding, finish the remaining " + cachedList.size() + " records, successNum is " + successNum;
+        return Response.ok().entity(result).build();
     }
 
     @GET
     @Path("status")
     @Produces(MediaType.TEXT_PLAIN)
-    public String getStatus() {
+    public Response getStatus() {
         List<RFIDLiftData> cachedList = (List<RFIDLiftData>) context.getAttribute("cachedList");
         int size = cachedList.size();
         int dayNum = (int) context.getAttribute("dayNum");
         int chunkSize = (int) context.getAttribute(("chunkSize"));
-        return "There are " + size + " records in the cachedList, dayNum is "+ dayNum +
+        String result =  "There are " + size + " records in the cachedList, dayNum is "+ dayNum +
                 ", chunkSize is " +chunkSize;
+        return Response.ok().entity(result).build();
     }
 
     @POST
-    public String postDayNum(@QueryParam("dayNum") int dayNum, @QueryParam("chunkSize") int chunkSize) {
+    public Response postDayNum(@QueryParam("dayNum") int dayNum, @QueryParam("chunkSize") int chunkSize) {
         context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
         context.setAttribute("dayNum", dayNum);
         context.setAttribute("chunkSize", chunkSize);
-        return "Successfully set the dayNum "+ dayNum + " and chunkSize " + chunkSize;
+        String result = "Successfully set the dayNum "+ dayNum + " and chunkSize " + chunkSize;
+        return Response.ok().entity(result).build();
     }
 
     @POST
     @Path("test")
     @Consumes(MediaType.APPLICATION_JSON)
-    public String testGet(RFIDLiftData rfidLiftData) {
+    public Response testGet(RFIDLiftData rfidLiftData) {
         List<RFIDLiftData> processList = new ArrayList<>();
         SkierDAO skierDAO = (SkierDAO) context.getAttribute("skierDAO");
         processList.add(rfidLiftData);
         skierDAO.loadRecords(processList);
-        return "Successfully added!";
+        return Response.ok().entity("Successfully Added!").build();
     }
 
 }

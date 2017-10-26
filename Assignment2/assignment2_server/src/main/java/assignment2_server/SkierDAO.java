@@ -1,7 +1,11 @@
 package assignment2_server;
 
 import bsdsass2testdata.RFIDLiftData;
+
+import javax.servlet.ServletContext;
+import javax.ws.rs.core.Context;
 import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
 
 public class SkierDAO {
@@ -11,7 +15,7 @@ public class SkierDAO {
     private Connection connection;
 
     public SkierDAO() {
-        hostname = "jdbc:mysql://mydbinstance.cz2nl5t3sjuh.us-west-2.rds.amazonaws.com:3306/skierdb?rewriteBatchedStatements=true";
+        hostname = "jdbc:mysql://mydbinstance.cz2nl5t3sjuh.us-west-2.rds.amazonaws.com:3306/skierdb?rewriteBatchedStatements=true&relaxAutoCommit=true";
         username = "hexiyang";
         password = "12345678";
         buildConnection();
@@ -36,9 +40,28 @@ public class SkierDAO {
         }
     }
 
+    public void createDay1Cache(ServletContext context) throws SQLException{
+        String query = "select skierID, SUM(liftID) as totalLift, SUM(vertical) as totalVertical from skierInfo\n" +
+                "where dayNum = 1\n" +
+                "group by skierID;";
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        ResultSet resultSet = preparedStatement.executeQuery();
+        HashMap<Integer, Integer> liftMap = new HashMap<>();
+        HashMap<Integer, Integer> verticalMap = new HashMap<>();
+        while(resultSet.next()) {
+            int skierID = resultSet.getInt("skierID");
+            int liftSum = resultSet.getInt("totalLift");
+            int verticalSum = resultSet.getInt("totalVertical");
+            liftMap.put(skierID, liftSum);
+            verticalMap.put(skierID, verticalSum);
+        }
+        context.setAttribute("liftMap", liftMap);
+        context.setAttribute("verticalMap", verticalMap);
+    }
+
     public int loadRecords(List<RFIDLiftData> rfidLiftDataList) {
-        String query = "INSERT INTO skierInfo (skierID, liftID, timeStamp, resortID, dayNum) " +
-                "VALUES (?, ?, ?, ?, ?)";
+        String query = "INSERT INTO skierInfo (skierID, liftID, timeStamp, resortID, dayNum, vertical) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
         int successCount = 0;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
@@ -49,6 +72,7 @@ public class SkierDAO {
                     preparedStatement.setInt(3, rfidLiftData.getTime());
                     preparedStatement.setInt(4, rfidLiftData.getResortID());
                     preparedStatement.setInt(5, rfidLiftData.getDayNum());
+                    preparedStatement.setInt(6, getVertical(rfidLiftData.getLiftID()));
 
                     // add to batch
                     preparedStatement.addBatch();
@@ -63,7 +87,20 @@ public class SkierDAO {
             return 0;
         }
         return successCount;
-
     }
+
+    private int getVertical (int liftID) {
+        if(liftID < 11) {
+            return 200;
+        } else if (liftID < 21) {
+            return 300;
+        } else if (liftID < 31) {
+            return 400;
+        } else {
+            return 500;
+        }
+    }
+
+
 
 }

@@ -6,13 +6,13 @@ import java.util.concurrent.Callable;
 
 public class GetRequestCallable implements Callable<ResultData>{
 
-    private SendRequest sendRequest;
+    private HTTPRequests HTTPRequests;
     private int from;
     private int to;
     private int dayNum;
 
-    public GetRequestCallable(SendRequest sendRequest, int from, int to, int dayNum) {
-        this.sendRequest = sendRequest;
+    public GetRequestCallable(HTTPRequests HTTPRequests, int from, int to, int dayNum) {
+        this.HTTPRequests = HTTPRequests;
         this.from = from;
         this.to = to;
         this.dayNum = dayNum;
@@ -24,10 +24,8 @@ public class GetRequestCallable implements Callable<ResultData>{
         int failedNum = 0;
         for (int i = from; i < to; i++) {
             long startTime = System.currentTimeMillis();
-            try {
-                sendRequest.getMyVert(i, dayNum);
-            } catch (Exception e) {
-                e.printStackTrace();
+            int status = HTTPRequests.getMyVert(i, dayNum);
+            if (status == 400) {
                 failedNum++;
             }
             totalNum++;

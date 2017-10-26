@@ -9,28 +9,25 @@ import java.util.HashMap;
 @WebListener()
 public class SkierListener implements ServletContextListener, ServletContextAttributeListener {
 
-    SkierDAO skierDAO;
-    ServletContext context;
     // Public constructor is required by servlet spec
     public SkierListener() {
-        skierDAO = new SkierDAO();
     }
 
     // -------------------------------------------------------
     // ServletContextListener implementation
     // -------------------------------------------------------
     public void contextInitialized(ServletContextEvent sce) {
-        context = sce.getServletContext();
-        context.setAttribute("skierDAO", skierDAO);
+        ServletContext context = sce.getServletContext();
+        context.setAttribute("skierDAO", new SkierDAO());
         context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
-        context.setAttribute("cachedLift", new HashMap<Integer, Integer>());
-        context.setAttribute("cachedVertical", new HashMap<Integer, Integer>());
         context.setAttribute("dayNum", 0);
         context.setAttribute("chunkSize", 1000);
         System.out.println("cacheList has been initialized!");
     }
 
     public void contextDestroyed(ServletContextEvent sce) {
+        ServletContext context = sce.getServletContext();
+        SkierDAO skierDAO = (SkierDAO)context.getAttribute("skierDao");
         skierDAO.destroyConnection();
     }
 
