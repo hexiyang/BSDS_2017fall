@@ -6,12 +6,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class Measurement {
-
+    long wallTime;
     List<Future<ResultData>> results;
     ResultData finalResult = new ResultData();
 
-    public Measurement(List<Future<ResultData>> results) {
+    public Measurement(List<Future<ResultData>> results, long wallTime) {
         this.results = results;
+        this.wallTime = wallTime;
         aggregateResults();
     }
 
@@ -22,10 +23,11 @@ public class Measurement {
 
     public void printStatistics() {
         System.out.println("\n\n" +
-                "***************************************************\n" +
+                "===================================================\n" +
                 "*                Statistic Results                *\n" +
-                "***************************************************");
+                "===================================================");
         // Start to print statistics
+        System.out.println("[     Wall Time]: " + wallTime);
         System.out.println("[    Total Requests]: " + finalResult.totalNum);
         System.out.println("[   Failed Requests]: " + finalResult.failNum);
         System.out.println("[    Total Mean   Latency]: " + meanLatency(finalResult.latencies) + " ms ");

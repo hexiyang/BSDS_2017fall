@@ -1,6 +1,8 @@
 package assignment2_client;
 
-import Dependencies.SkierInfo;
+
+import bsdsass2testdata.RFIDLiftData;
+
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
@@ -18,15 +20,15 @@ public class SendRequest {
         postTarget = getWebTarget("add");
     }
 
-    public void getMyVert(String skierID, int dayNum) throws Exception{
-        String response = getTarget.queryParam("skierID", "123")
+    public void getMyVert(int skierID, int dayNum) throws Exception{
+        String response = getTarget.queryParam("skierID", 1)
                 .queryParam("dayNum", 1).request(MediaType.TEXT_PLAIN).get(String.class);
-        System.out.println("getRequest is returning " + response);
+        System.out.println(response);
     }
 
-    public void postRecord(SkierInfo skierInfo) throws Exception{
+    public void postRecord(RFIDLiftData rfidLiftData) throws Exception{
         String response = postTarget.request(MediaType.APPLICATION_JSON)
-                .post(Entity.json(skierInfo), String.class);
+                .post(Entity.json(rfidLiftData), String.class);
         System.out.println(response);
     }
 
@@ -47,9 +49,11 @@ public class SendRequest {
         //"http://localhost:8080/webapi/myresource"
         //.path("assignment2_server/webapi/myresource")
         //"http://" + ipAddress + ":" + port
+        String localPath = "http://localhost:8383/webapi/myresource";
+        String awsPath = "http://" + ipAddress + ":" + port + "/assignment2_server/webapi/myresource";
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client
-                .target("http://" + ipAddress + ":" + port).path("assignment2_server/webapi/myresource")
+                .target(awsPath)
                 .path(path);
         return webTarget;
     }

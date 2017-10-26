@@ -1,10 +1,10 @@
 package assignment2_server;
 
-import Dependencies.SkierInfo;
-
+import bsdsass2testdata.RFIDLiftData;
 import javax.servlet.*;
 import javax.servlet.annotation.WebListener;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 @WebListener()
 public class SkierListener implements ServletContextListener, ServletContextAttributeListener {
@@ -20,10 +20,11 @@ public class SkierListener implements ServletContextListener, ServletContextAttr
     // ServletContextListener implementation
     // -------------------------------------------------------
     public void contextInitialized(ServletContextEvent sce) {
-        skierDAO.buildConnection();
         context = sce.getServletContext();
         context.setAttribute("skierDAO", skierDAO);
-        context.setAttribute("cachedList", new ArrayList<SkierInfo>());
+        context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
+        context.setAttribute("cachedLift", new HashMap<Integer, Integer>());
+        context.setAttribute("cachedVertical", new HashMap<Integer, Integer>());
         context.setAttribute("dayNum", 0);
         context.setAttribute("chunkSize", 1000);
         System.out.println("cacheList has been initialized!");

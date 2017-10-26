@@ -19,6 +19,7 @@ public class RFIDLiftData implements Serializable, Comparable<RFIDLiftData>  {
     private int liftID;
     private int time;
 
+    public RFIDLiftData() {}
     public RFIDLiftData(int resortID, int dayNum, int skierID, int liftID, int time) {
         this.resortID = resortID;
         this.dayNum = dayNum;

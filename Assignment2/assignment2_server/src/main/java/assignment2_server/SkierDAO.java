@@ -1,8 +1,7 @@
 package assignment2_server;
 
-import Dependencies.SkierInfo;
+import bsdsass2testdata.RFIDLiftData;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 public class SkierDAO {
@@ -15,6 +14,7 @@ public class SkierDAO {
         hostname = "jdbc:mysql://mydbinstance.cz2nl5t3sjuh.us-west-2.rds.amazonaws.com:3306/skierdb?rewriteBatchedStatements=true";
         username = "hexiyang";
         password = "12345678";
+        buildConnection();
     }
 
     public void buildConnection() {
@@ -36,19 +36,20 @@ public class SkierDAO {
         }
     }
 
-    public int loadRecords(List<SkierInfo> skierInfoList) {
+    public int loadRecords(List<RFIDLiftData> rfidLiftDataList) {
         String query = "INSERT INTO skierInfo (skierID, liftID, timeStamp, resortID, dayNum) " +
                 "VALUES (?, ?, ?, ?, ?)";
         int successCount = 0;
         try {
             PreparedStatement preparedStatement = connection.prepareStatement(query);
-            for (SkierInfo skierInfo : skierInfoList) {
+            for (RFIDLiftData rfidLiftData : rfidLiftDataList) {
                 try {
-                    preparedStatement.setString(1, skierInfo.getSkierID());
-                    preparedStatement.setString(2, skierInfo.getLiftID());
-                    preparedStatement.setString(3, skierInfo.getTimestamp());
-                    preparedStatement.setString(4, skierInfo.getResortID());
-                    preparedStatement.setInt(5, skierInfo.getDayNum());
+                    preparedStatement.setInt(1, rfidLiftData.getSkierID());
+                    preparedStatement.setInt(2, rfidLiftData.getLiftID());
+                    preparedStatement.setInt(3, rfidLiftData.getTime());
+                    preparedStatement.setInt(4, rfidLiftData.getResortID());
+                    preparedStatement.setInt(5, rfidLiftData.getDayNum());
+
                     // add to batch
                     preparedStatement.addBatch();
                     successCount++;
@@ -64,25 +65,5 @@ public class SkierDAO {
         return successCount;
 
     }
-
-    public int addToBatch(SkierInfo skierInfo) {
-        String query = "INSERT INTO skierdb.skierInfo (skierID, liftID, timeStamp, resortID, dayNum) " +
-                "VALUES (?, ?, ?, ?, ?)";
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, skierInfo.getSkierID());
-            preparedStatement.setString(2, skierInfo.getLiftID());
-            preparedStatement.setString(3, skierInfo.getTimestamp());
-            preparedStatement.setString(4, skierInfo.getResortID());
-            preparedStatement.setInt(5, skierInfo.getDayNum());
-            // add to batch
-            preparedStatement.addBatch();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return 0;
-        }
-        return 1;
-    }
-
 
 }
