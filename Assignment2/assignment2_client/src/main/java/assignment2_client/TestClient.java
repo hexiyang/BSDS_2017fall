@@ -9,6 +9,16 @@ import java.util.concurrent.*;
 public class TestClient {
 
     public static void main(String[] args) {
+        postData("/Users/Xiyang/Documents/Google Drive/Courses/" +
+                "Distributed System/Assignments/Assignment2/BSDSAssignment2Day1.csv");
+    }
+
+    private static void postData(String filePath) {
+        Scheduler scheduler = new Scheduler(filePath, new HTTPRequests());
+        Measurement postMeasurement = scheduler.multiThreadPost();
+        postMeasurement.printStatistics();
+    }
+    private static void postAndGet() {
         String filePath = "/Users/Xiyang/Documents/Google Drive/Courses/" +
                 "Distributed System/Assignments/Assignment2/BSDSAssignment2Day2.ser";
 
@@ -59,8 +69,6 @@ public class TestClient {
                 e.printStackTrace();
             }
         }
-
-
     }
 
 }

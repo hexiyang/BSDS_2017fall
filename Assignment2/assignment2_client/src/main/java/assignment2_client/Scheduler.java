@@ -23,7 +23,7 @@ public class Scheduler {
         DataReader dataReader = new DataReader(filePath);
         List<RFIDLiftData> rfidLiftDataList = dataReader.readDataFile();
         int listSize = rfidLiftDataList.size();
-        int ThreadNum = 80;
+        int ThreadNum = (int)Math.ceil((double)listSize/chunkSize);
         // start the multiThread
         List<PostRequestCallable> tasks = new ArrayList<PostRequestCallable>();
         httpRequests.setAttributes(1, 5000);

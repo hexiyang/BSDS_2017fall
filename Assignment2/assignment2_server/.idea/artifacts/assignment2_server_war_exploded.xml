@@ -32,7 +32,6 @@
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.core:jackson-core:2.8.4" />
           <element id="library" level="project" name="Maven: com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.8.4" />
           <element id="library" level="project" name="Maven: mysql:mysql-connector-java:6.0.6" />
-          <element id="library" level="project" name="assignment2_dependency" />
         </element>
       </element>
       <element id="directory" name="META-INF">
