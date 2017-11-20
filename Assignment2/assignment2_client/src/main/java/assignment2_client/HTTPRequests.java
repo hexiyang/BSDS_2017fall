@@ -52,7 +52,7 @@ public class HTTPRequests {
         String awsPath = "http://" + ipAddress + ":" + port + "/assignment2_server/webapi/myresource";
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client
-                .target(awsPath);
+                .target(localPath);
         return webTarget;
     }
 

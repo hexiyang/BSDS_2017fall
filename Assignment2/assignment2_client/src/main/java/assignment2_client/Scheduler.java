@@ -11,14 +11,12 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 public class Scheduler {
-    private String filePath;
     private HTTPRequests httpRequests;
-    public Scheduler(String filePath, HTTPRequests httpRequests) {
-        this.filePath = filePath;
+    public Scheduler(HTTPRequests httpRequests) {
         this.httpRequests = httpRequests;
     }
 
-    public Measurement multiThreadPost() {
+    public Measurement multiThreadPost(String filePath) {
         int chunkSize = 8000;
         DataReader dataReader = new DataReader(filePath);
         List<RFIDLiftData> rfidLiftDataList = dataReader.readDataFile();
@@ -64,14 +62,14 @@ public class Scheduler {
     }
 
 
-    public Measurement multiThreadGet() {
-        int threadNum = 100;
-        int chunkSize = (int)Math.ceil((double)40000/threadNum);
+    public Measurement multiThreadGet(int dayNum) {
+        int threadNum = 10;
+        int chunkSize = (int)Math.ceil((double)3000/threadNum);
         List<GetRequestCallable> tasks = new ArrayList<>();
         HTTPRequests HTTPRequests = new HTTPRequests();
         int i = 1;
-        while (i < 40001) {
-            GetRequestCallable task = new GetRequestCallable(HTTPRequests, i, i + chunkSize, 1);
+        while (i < 3001) {
+            GetRequestCallable task = new GetRequestCallable(HTTPRequests, i, i + chunkSize, dayNum);
             tasks.add(task);
             i += chunkSize;
         }

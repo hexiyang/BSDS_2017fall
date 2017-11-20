@@ -26,29 +26,42 @@ public class MyResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
-        return "Sun Nov 19 22:57";
+        return "Sun Nov 20 3:29";
     }
 
     @GET
     @Path("myvert")
     @Produces(MediaType.TEXT_PLAIN)
-    public Response fetchBy(@QueryParam("skierID") int skierID, @QueryParam("dayNum") int dayNum) {
+    public Response getVert(@QueryParam("skierID") int skierID, @QueryParam("dayNum") int dayNum) {
         Response.Status status = Response.Status.ACCEPTED;
-        if (context.getAttribute("liftMap") == null || context.getAttribute("verticalMap") == null) {
+        int DAY_NUM = (int) context.getAttribute("dayNum");
+        boolean caching = (boolean) context.getAttribute("caching");
+        if (dayNum != DAY_NUM) {
+            context.setAttribute("dayNum", dayNum);
+            context.setAttribute("caching", true);
+            System.out.println("------------------>>caching for one day...");
             SkierDAO skierDAO = (SkierDAO) context.getAttribute("skierDAO");
             try {
-                skierDAO.createDay1Cache(context);
+                skierDAO.createDayCache(context, dayNum);
+                context.setAttribute("caching", false);
             } catch (SQLException e) {
                 status = Response.Status.BAD_REQUEST;
                 e.printStackTrace();
             }
+        } else if (caching) {
+            while ((boolean) context.getAttribute("caching")){ }
         }
         HashMap<Integer,Integer> liftMap = (HashMap<Integer, Integer>) context.getAttribute("liftMap");
         HashMap<Integer,Integer> verticalMap = (HashMap<Integer, Integer>) context.getAttribute("verticalMap");
-        int liftSum = liftMap.get(skierID);
-        int verticalSum = verticalMap.get(skierID);
-        String result = "\tThe liftSum for skierID " + skierID + " is " + liftSum +
-                ", its total vertical today is " + verticalSum + "m";
+        String result;
+        if (liftMap.get(skierID) == null) {
+            result = "No such skier with skierID: " + skierID;
+        } else {
+            int liftSum = liftMap.get(skierID);
+            int verticalSum = verticalMap.get(skierID);
+            result = "The liftSum for skierID " + skierID + " is " + liftSum +
+                    ", its total vertical today is " + verticalSum + "m";
+        }
         return Response.status(status).entity(result).build();
     }
 
@@ -91,10 +104,7 @@ public class MyResource {
     @Path("test")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response testGet(RFIDLiftData rfidLiftData) {
-        List<RFIDLiftData> processList = new ArrayList<>();
-        SkierDAO skierDAO = (SkierDAO) context.getAttribute("skierDAO");
-        processList.add(rfidLiftData);
-        skierDAO.loadRecords(processList);
+
         return Response.ok().entity("Successfully Added!").build();
     }
 

@@ -9,32 +9,36 @@ import java.util.concurrent.*;
 public class TestClient {
 
     public static void main(String[] args) {
-        postData("/Users/Xiyang/Documents/Google Drive/Courses/" +
-                "Distributed System/Assignments/Assignment3/BSDSAssignment2Day999.csv");
+        String filePath = "/Users/Xiyang/Documents/Google Drive/Courses/" +
+                "Distributed System/Assignments/Assignment3/BSDSAssignment2Day999.csv";
+        getData(999);
     }
 
     private static void postData(String filePath) {
-        Scheduler scheduler = new Scheduler(filePath, new HTTPRequests());
-        Measurement postMeasurement = scheduler.multiThreadPost();
+        Scheduler scheduler = new Scheduler(new HTTPRequests());
+        Measurement postMeasurement = scheduler.multiThreadPost(filePath);
         postMeasurement.printStatistics();
     }
-    private static void getData(int DayNum) {
-
+    private static void getData(int dayNum) {
+        Scheduler scheduler = new Scheduler(new HTTPRequests());
+        Measurement getMeasurement = scheduler.multiThreadGet(dayNum);
+        getMeasurement.printStatistics();
     }
     private static void postAndGet() {
         String filePath = "/Users/Xiyang/Documents/Google Drive/Courses/" +
                 "Distributed System/Assignments/Assignment2/BSDSAssignment2Day2.ser";
+        int dayNum = 1;
 
         Callable<Measurement> postCallable = () -> {
             HTTPRequests postHTTPRequests = new HTTPRequests();
-            Scheduler scheduler = new Scheduler(filePath, postHTTPRequests);
-            Measurement postMeasurement = scheduler.multiThreadPost();
+            Scheduler scheduler = new Scheduler(postHTTPRequests);
+            Measurement postMeasurement = scheduler.multiThreadPost(filePath);
             return postMeasurement;
         };
         Callable<Measurement> getCallable = () -> {
             HTTPRequests getHTTPRequests = new HTTPRequests();
-            Scheduler scheduler = new Scheduler(filePath, getHTTPRequests);
-            Measurement getMeasurement = scheduler.multiThreadGet();
+            Scheduler scheduler = new Scheduler(getHTTPRequests);
+            Measurement getMeasurement = scheduler.multiThreadGet(dayNum);
             return getMeasurement;
         };
 

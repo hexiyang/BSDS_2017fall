@@ -41,8 +41,7 @@ public class SkierDAO {
         }
     }
 
-    public void createDay1Cache(ServletContext context) throws SQLException{
-        int dayNum = (int)context.getAttribute("dayNum");
+    public void createDayCache(ServletContext context, int dayNum) throws SQLException{
         String query = "select skierID, SUM(liftID) as totalLift, SUM(vertical) as totalVertical from skierInfo\n" +
                 "where dayNum = " + dayNum + "\n" +
                 "group by skierID;";
@@ -59,6 +58,8 @@ public class SkierDAO {
         }
         context.setAttribute("liftMap", liftMap);
         context.setAttribute("verticalMap", verticalMap);
+        context.setAttribute("dayNum", dayNum);
+
     }
 
     public void prepareBatch() {
@@ -86,7 +87,17 @@ public class SkierDAO {
 
     }
 
-    public int loadRecords(List<RFIDLiftData> rfidLiftDataList) {
+    public void doBatch() {
+        try {
+            batchStatement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        batchStatement = null;
+
+    }
+
+    private int loadRecords(List<RFIDLiftData> rfidLiftDataList) {
         String query = "INSERT INTO skierInfo (skierID, liftID, timeStamp, resortID, dayNum, vertical) " +
                 "VALUES (?, ?, ?, ?, ?, ?)";
         int successCount = 0;

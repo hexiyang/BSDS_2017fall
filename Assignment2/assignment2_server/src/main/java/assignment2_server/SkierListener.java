@@ -24,18 +24,20 @@ public class SkierListener implements ServletContextListener, ServletContextAttr
         skierDAO = new SkierDAO();
         int chunckSize = 5000;
         context.setAttribute("skierDAO", skierDAO);
-        context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
+        context.setAttribute("caching", false);
         processQueue = new LinkedBlockingQueue<RFIDLiftData>();
         context.setAttribute("processQueue", processQueue);
-        context.setAttribute("dayNum", 1);
+        System.out.println("processQueue has been initialized!");
+        context.setAttribute("dayNum", 0);
         context.setAttribute("chunkSize", chunckSize);
-        System.out.println("cacheList has been initialized!");
+        context.setAttribute("liftMap", new HashMap<>());
+        context.setAttribute("verticalMap", new HashMap<>());
+        System.out.println("maps have been initialized!");
 
         scheduler = Executors.newSingleThreadScheduledExecutor();
         Runnable loadTask = new ScanTimerTask(processQueue, skierDAO, chunckSize);
-        scheduler.scheduleAtFixedRate(loadTask, 10, 2, TimeUnit.SECONDS);
-        System.out.println("Timer has been initialized!");
-
+        scheduler.scheduleAtFixedRate(loadTask, 10, 3, TimeUnit.SECONDS);
+        System.out.println("Task has been scheduled!");
     }
 
     public void contextDestroyed(ServletContextEvent sce) {

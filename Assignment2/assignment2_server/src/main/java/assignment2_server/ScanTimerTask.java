@@ -1,8 +1,6 @@
 package assignment2_server;
 
 import bsdsass2testdata.RFIDLiftData;
-
-import javax.servlet.ServletContext;
 import java.util.*;
 
 public class ScanTimerTask implements Runnable{
@@ -16,14 +14,15 @@ public class ScanTimerTask implements Runnable{
     }
     @Override
     public void run() {
-        int count = chunkSize;
-        List<RFIDLiftData> list = new ArrayList<>();
-        while (!processQueue.isEmpty() && count>0) {
-            list.add(processQueue.poll());
-            count--;
+        int size = processQueue.size();
+        int count = Math.min(size, chunkSize);
+        if(size != 0) {
+            skierDAO.prepareBatch();
+            for (int i = 0; i < count; i ++) {
+                skierDAO.addToBatch(processQueue.poll());
+            }
+            skierDAO.doBatch();
         }
-        int recordsNum = chunkSize - count;
-        int successNum = skierDAO.loadRecords(list);
-        System.out.println("Successful loaded " + recordsNum + " records, successNum is " + successNum);
+        System.out.println("Successful loaded " + count + " records");
     }
 }
