@@ -27,13 +27,14 @@ public class Measurement {
                 "*                Statistic Results                *\n" +
                 "===================================================");
         // Start to print statistics
-        System.out.println("[     Wall Time]: " + wallTime + " ms");
+        System.out.println("[     Wall Time]: " + wallTime/1000 + " s");
         System.out.println("[    Total Requests]: " + finalResult.totalNum);
         System.out.println("[   Failed Requests]: " + finalResult.failNum);
         System.out.println("[    Total Mean   Latency]: " + meanLatency(finalResult.latencies) + " ms ");
         System.out.println("[    Total Median Latency]: " + percentileLatency(finalResult.latencies, 0.50) + " ms ");
         System.out.println("[    Total 95th Latency]: " + percentileLatency(finalResult.latencies, 0.95) + " ms ");
         System.out.println("[    Total 99th Latency]: " + percentileLatency(finalResult.latencies, 0.99) + " ms ");
+        System.out.println("[    Throughput   ]: " + ((double)finalResult.totalNum/wallTime)*1000 + " req/s");
     }
 
     private void aggregateResults() {

@@ -11,7 +11,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 public class HTTPRequests {
-    private String ipAddress = "34.215.58.78";
+    private String ec2 = "ec2-54-149-250-99.us-west-2.compute.amazonaws.com";
+    private String ec2_1 = "ec2-54-191-27-28.us-west-2.compute.amazonaws.com";
+    private String ec2_2 = "ec2-54-218-49-20.us-west-2.compute.amazonaws.com";
+    private String load_balancer = "LB-1-26347b388ec587e9.elb.us-west-2.amazonaws.com";
+    private String ipAddress = load_balancer;
     private String port = "8080";
     public WebTarget webTarget;
 
@@ -44,7 +48,7 @@ public class HTTPRequests {
     }
 
     private WebTarget getWebTarget() {
-        String localPath = "http://localhost:8383/webapi/myresource";
+        String localPath = "http://localhost:8484/webapi/myresource";
         String awsPath = "http://" + ipAddress + ":" + port + "/assignment2_server/webapi/myresource";
         Client client = ClientBuilder.newClient();
         WebTarget webTarget = client

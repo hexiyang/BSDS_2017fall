@@ -13,6 +13,7 @@ public class SkierDAO {
     private String username;
     private String password;
     private Connection connection;
+    private PreparedStatement batchStatement;
 
     public SkierDAO() {
         hostname = "jdbc:mysql://mydbinstance.cz2nl5t3sjuh.us-west-2.rds.amazonaws.com:3306/skierdb?rewriteBatchedStatements=true&relaxAutoCommit=true";
@@ -41,8 +42,9 @@ public class SkierDAO {
     }
 
     public void createDay1Cache(ServletContext context) throws SQLException{
+        int dayNum = (int)context.getAttribute("dayNum");
         String query = "select skierID, SUM(liftID) as totalLift, SUM(vertical) as totalVertical from skierInfo\n" +
-                "where dayNum = 1\n" +
+                "where dayNum = " + dayNum + "\n" +
                 "group by skierID;";
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         ResultSet resultSet = preparedStatement.executeQuery();
@@ -57,6 +59,31 @@ public class SkierDAO {
         }
         context.setAttribute("liftMap", liftMap);
         context.setAttribute("verticalMap", verticalMap);
+    }
+
+    public void prepareBatch() {
+        String query = "INSERT INTO skierInfo (skierID, liftID, timeStamp, resortID, dayNum, vertical) " +
+                "VALUES (?, ?, ?, ?, ?, ?)";
+        try{
+            batchStatement = connection.prepareStatement(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addToBatch(RFIDLiftData rfidLiftData) {
+        try {
+            batchStatement.setInt(1, rfidLiftData.getSkierID());
+            batchStatement.setInt(2, rfidLiftData.getLiftID());
+            batchStatement.setInt(3, rfidLiftData.getTime());
+            batchStatement.setInt(4, rfidLiftData.getResortID());
+            batchStatement.setInt(5, rfidLiftData.getDayNum());
+            batchStatement.setInt(6, getVertical(rfidLiftData.getLiftID()));
+            batchStatement.addBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
     }
 
     public int loadRecords(List<RFIDLiftData> rfidLiftDataList) {
@@ -78,6 +105,8 @@ public class SkierDAO {
                     preparedStatement.addBatch();
                     successCount++;
                 } catch (SQLException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }

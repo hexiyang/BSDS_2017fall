@@ -10,13 +10,16 @@ public class TestClient {
 
     public static void main(String[] args) {
         postData("/Users/Xiyang/Documents/Google Drive/Courses/" +
-                "Distributed System/Assignments/Assignment2/BSDSAssignment2Day1.csv");
+                "Distributed System/Assignments/Assignment3/BSDSAssignment2Day999.csv");
     }
 
     private static void postData(String filePath) {
         Scheduler scheduler = new Scheduler(filePath, new HTTPRequests());
         Measurement postMeasurement = scheduler.multiThreadPost();
         postMeasurement.printStatistics();
+    }
+    private static void getData(int DayNum) {
+
     }
     private static void postAndGet() {
         String filePath = "/Users/Xiyang/Documents/Google Drive/Courses/" +

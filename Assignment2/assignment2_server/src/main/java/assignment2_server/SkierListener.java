@@ -3,11 +3,14 @@ package assignment2_server;
 import bsdsass2testdata.RFIDLiftData;
 import javax.servlet.*;
 import javax.servlet.annotation.WebListener;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
+import java.util.concurrent.*;
 
 @WebListener()
 public class SkierListener implements ServletContextListener, ServletContextAttributeListener {
+    private ScheduledExecutorService scheduler;
+    private SkierDAO skierDAO;
+    private Queue<RFIDLiftData> processQueue;
 
     // Public constructor is required by servlet spec
     public SkierListener() {
@@ -18,17 +21,26 @@ public class SkierListener implements ServletContextListener, ServletContextAttr
     // -------------------------------------------------------
     public void contextInitialized(ServletContextEvent sce) {
         ServletContext context = sce.getServletContext();
-        context.setAttribute("skierDAO", new SkierDAO());
+        skierDAO = new SkierDAO();
+        int chunckSize = 5000;
+        context.setAttribute("skierDAO", skierDAO);
         context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
-        context.setAttribute("dayNum", 0);
-        context.setAttribute("chunkSize", 1000);
+        processQueue = new LinkedBlockingQueue<RFIDLiftData>();
+        context.setAttribute("processQueue", processQueue);
+        context.setAttribute("dayNum", 1);
+        context.setAttribute("chunkSize", chunckSize);
         System.out.println("cacheList has been initialized!");
+
+        scheduler = Executors.newSingleThreadScheduledExecutor();
+        Runnable loadTask = new ScanTimerTask(processQueue, skierDAO, chunckSize);
+        scheduler.scheduleAtFixedRate(loadTask, 10, 2, TimeUnit.SECONDS);
+        System.out.println("Timer has been initialized!");
+
     }
 
     public void contextDestroyed(ServletContextEvent sce) {
-        ServletContext context = sce.getServletContext();
-        SkierDAO skierDAO = (SkierDAO)context.getAttribute("skierDao");
         skierDAO.destroyConnection();
+        scheduler.shutdown();
     }
 
     public void attributeAdded(ServletContextAttributeEvent sce) {

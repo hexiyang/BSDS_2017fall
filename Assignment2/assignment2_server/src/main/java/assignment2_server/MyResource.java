@@ -7,9 +7,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * Root resource (exposed at "myresource" path)
@@ -27,7 +26,7 @@ public class MyResource {
     @GET
     @Produces(MediaType.TEXT_PLAIN)
     public String getIt() {
-        return "Wed Oct 25 23:38";
+        return "Sun Nov 19 22:57";
     }
 
     @GET
@@ -57,29 +56,9 @@ public class MyResource {
     @Path("add")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response addRecord(RFIDLiftData rfidLiftData) throws Exception{
-        List<RFIDLiftData> cachedList = (List<RFIDLiftData>) context.getAttribute("cachedList");
-        String result;
-        int chunkSize = (int) context.getAttribute("chunkSize");
-        cachedList.add(rfidLiftData);
-        if (cachedList.size() >= chunkSize) {
-            context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
-            SkierDAO skierDAO = (SkierDAO) context.getAttribute("skierDAO");
-            int successNum = skierDAO.loadRecords(cachedList);
-            result =  "post added, successful loaded data, successNum is " + successNum;
-        }
-        result = "\tpost added, skierID is " + rfidLiftData.getSkierID();
-        return Response.ok().entity(result).build();
-    }
-
-    @GET
-    @Path("endLoading")
-    @Produces(MediaType.TEXT_PLAIN)
-    public Response endLoading() {
-        List<RFIDLiftData> cachedList = (List<RFIDLiftData>) context.getAttribute("cachedList");
-        context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
-        SkierDAO skierDAO = (SkierDAO) context.getAttribute("skierDAO");
-        int successNum = skierDAO.loadRecords(cachedList);
-        String result= "endLoding, finish the remaining " + cachedList.size() + " records, successNum is " + successNum;
+        Queue<RFIDLiftData> queue = (Queue<RFIDLiftData>) context.getAttribute("processQueue");
+        queue.add(rfidLiftData);
+        String result = "post added, skierID is " + rfidLiftData.getSkierID();
         return Response.ok().entity(result).build();
     }
 
@@ -88,16 +67,19 @@ public class MyResource {
     @Produces(MediaType.TEXT_PLAIN)
     public Response getStatus() {
         List<RFIDLiftData> cachedList = (List<RFIDLiftData>) context.getAttribute("cachedList");
+        Queue<List<RFIDLiftData>> queue = (Queue<List<RFIDLiftData>>) context.getAttribute("processQueue");
         int size = cachedList.size();
         int dayNum = (int) context.getAttribute("dayNum");
         int chunkSize = (int) context.getAttribute(("chunkSize"));
         String result =  "There are " + size + " records in the cachedList, dayNum is "+ dayNum +
-                ", chunkSize is " +chunkSize;
+                ", chunkSize is " +chunkSize + ", queue size is " + queue.size();
         return Response.ok().entity(result).build();
     }
 
+
     @POST
-    public Response postDayNum(@QueryParam("dayNum") int dayNum, @QueryParam("chunkSize") int chunkSize) {
+    @Path("setAttributes")
+    public Response setAttributes(@QueryParam("dayNum") int dayNum, @QueryParam("chunkSize") int chunkSize) {
         context.setAttribute("cachedList", new ArrayList<RFIDLiftData>());
         context.setAttribute("dayNum", dayNum);
         context.setAttribute("chunkSize", chunkSize);

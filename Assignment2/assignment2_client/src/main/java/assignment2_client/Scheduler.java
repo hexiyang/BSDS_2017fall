@@ -26,7 +26,7 @@ public class Scheduler {
         int ThreadNum = (int)Math.ceil((double)listSize/chunkSize);
         // start the multiThread
         List<PostRequestCallable> tasks = new ArrayList<PostRequestCallable>();
-        httpRequests.setAttributes(1, 5000);
+        //httpRequests.setAttributes(1, 5000);
         while (listSize > chunkSize) {
             List<RFIDLiftData> tempList = rfidLiftDataList.subList(listSize - chunkSize, listSize);
             PostRequestCallable task = new PostRequestCallable(httpRequests, tempList);
@@ -49,7 +49,7 @@ public class Scheduler {
         executor.shutdown();
         try {
             if (executor.awaitTermination(15, TimeUnit.MINUTES)) {
-                httpRequests.endLoading();
+                //httpRequests.endLoading();
             } else {
                 executor.shutdownNow();
                 System.out.println("System time out");
@@ -66,7 +66,7 @@ public class Scheduler {
 
     public Measurement multiThreadGet() {
         int threadNum = 100;
-        int chunkSize = 40000/threadNum;
+        int chunkSize = (int)Math.ceil((double)40000/threadNum);
         List<GetRequestCallable> tasks = new ArrayList<>();
         HTTPRequests HTTPRequests = new HTTPRequests();
         int i = 1;
