@@ -14,7 +14,11 @@ public class SkierDAO {
     private String password;
     private Connection connection;
     private PreparedStatement batchStatement;
+    private PreparedStatement responseStatement;
 
+    /*
+    Constructor
+     */
     public SkierDAO() {
         hostname = "jdbc:mysql://mydbinstance.cz2nl5t3sjuh.us-west-2.rds.amazonaws.com:3306/skierdb?rewriteBatchedStatements=true&relaxAutoCommit=true";
         username = "hexiyang";
@@ -22,6 +26,10 @@ public class SkierDAO {
         buildConnection();
     }
 
+
+    /*
+    Initialize the connection
+     */
     public void buildConnection() {
         try {
             Driver myDriver = new com.mysql.jdbc.Driver();
@@ -33,6 +41,7 @@ public class SkierDAO {
         System.out.println("successfully connected!");
     }
 
+    // Destroy Connection
     public void destroyConnection() {
         try {
             connection.close();
@@ -41,6 +50,9 @@ public class SkierDAO {
         }
     }
 
+    //-----------------------------------------------------------------------------------
+    //   Skier Operations
+    //-----------------------------------------------------------------------------------
     public void createDayCache(ServletContext context, int dayNum) throws SQLException{
         String query = "select skierID, SUM(liftID) as totalLift, SUM(vertical) as totalVertical from skierInfo\n" +
                 "where dayNum = " + dayNum + "\n" +
@@ -97,38 +109,6 @@ public class SkierDAO {
 
     }
 
-    private int loadRecords(List<RFIDLiftData> rfidLiftDataList) {
-        String query = "INSERT INTO skierInfo (skierID, liftID, timeStamp, resortID, dayNum, vertical) " +
-                "VALUES (?, ?, ?, ?, ?, ?)";
-        int successCount = 0;
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            for (RFIDLiftData rfidLiftData : rfidLiftDataList) {
-                try {
-                    preparedStatement.setInt(1, rfidLiftData.getSkierID());
-                    preparedStatement.setInt(2, rfidLiftData.getLiftID());
-                    preparedStatement.setInt(3, rfidLiftData.getTime());
-                    preparedStatement.setInt(4, rfidLiftData.getResortID());
-                    preparedStatement.setInt(5, rfidLiftData.getDayNum());
-                    preparedStatement.setInt(6, getVertical(rfidLiftData.getLiftID()));
-
-                    // add to batch
-                    preparedStatement.addBatch();
-                    successCount++;
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                } catch (NullPointerException e) {
-                    e.printStackTrace();
-                }
-            }
-            preparedStatement.executeBatch();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return 0;
-        }
-        return successCount;
-    }
-
     private int getVertical (int liftID) {
         if(liftID < 11) {
             return 200;
@@ -139,6 +119,55 @@ public class SkierDAO {
         } else {
             return 500;
         }
+    }
+
+    //-----------------------------------------------------------------------------------
+    //   ResponseTime Monitor Operations
+    //-----------------------------------------------------------------------------------
+
+    public void prepareResponseBatch(){
+        String query = "INSERT INTO monitor (response_time) VALUES (?)";
+        try {
+            responseStatement = connection.prepareStatement(query);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addToResponseBatch(Long responseTime) {
+        try {
+            responseStatement.setLong(1, responseTime);
+            responseStatement.addBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void doResponseBatch() {
+        try {
+            responseStatement.executeBatch();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        responseStatement = null;
+    }
+
+    public Long getMeanResponseTime() {
+        String query = "SELECT AVG(response_time) FROM monitor;";
+        Long result = 0l;
+        try {
+            PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            result = resultSet.getLong(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    public Long getPercentileResponseTime(double percentile) {
+        return 0l;
     }
 
 

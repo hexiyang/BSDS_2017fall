@@ -1,5 +1,6 @@
 package assignment2_client;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -9,6 +10,9 @@ public class Measurement {
     long wallTime;
     List<Future<ResultData>> results;
     ResultData finalResult = new ResultData();
+    List<Long> timeList;
+
+    public Measurement() {}
 
     public Measurement(List<Future<ResultData>> results, long wallTime) {
         this.results = results;
@@ -51,7 +55,7 @@ public class Measurement {
             }
         }
     }
-    // Help functions
+    // Helper functions
     private long meanLatency (List<Long> list) {
         if (list.size() > 0) {
             long sum = 0;
@@ -74,4 +78,6 @@ public class Measurement {
             return 0;
         }
     }
+
+
 }

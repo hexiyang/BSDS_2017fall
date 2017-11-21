@@ -63,7 +63,7 @@ public class Scheduler {
 
 
     public Measurement multiThreadGet(int dayNum) {
-        int threadNum = 10;
+        int threadNum = 100;
         int chunkSize = (int)Math.ceil((double)3000/threadNum);
         List<GetRequestCallable> tasks = new ArrayList<>();
         HTTPRequests HTTPRequests = new HTTPRequests();

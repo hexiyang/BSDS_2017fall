@@ -50,7 +50,6 @@ public class ThroughputTest {
         executor.shutdown();
         try {
             if (executor.awaitTermination(10, TimeUnit.MINUTES)) {
-                httpRequests.endLoading();
             } else {
                 executor.shutdownNow();
                 System.out.println("System times out");
@@ -59,7 +58,6 @@ public class ThroughputTest {
             e.printStackTrace();
             executor.shutdownNow();
         }
-        httpRequests.endLoading();
         long wallTime = System.currentTimeMillis() - startTime;
 //        System.out.println("The throughput for ThreadNum: " + 800000/clientChunkSize + ", ServerChunckSize: "
 //        + serverChunckSize + " is " + (40000.00/(double)wallTime)*1000 + " req/s");

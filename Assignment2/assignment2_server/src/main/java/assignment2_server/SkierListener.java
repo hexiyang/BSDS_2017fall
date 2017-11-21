@@ -1,16 +1,23 @@
 package assignment2_server;
 
 import bsdsass2testdata.RFIDLiftData;
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
+
 import javax.servlet.*;
 import javax.servlet.annotation.WebListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
 
 @WebListener()
 public class SkierListener implements ServletContextListener, ServletContextAttributeListener {
     private ScheduledExecutorService scheduler;
+    private ScheduledExecutorService responseScheduler;
     private SkierDAO skierDAO;
     private Queue<RFIDLiftData> processQueue;
+    private Queue<Long> responseQueue;
+    private File file;
 
     // Public constructor is required by servlet spec
     public SkierListener() {
@@ -27,6 +34,8 @@ public class SkierListener implements ServletContextListener, ServletContextAttr
         context.setAttribute("caching", false);
         processQueue = new LinkedBlockingQueue<RFIDLiftData>();
         context.setAttribute("processQueue", processQueue);
+        responseQueue = new LinkedBlockingQueue<Long>();
+        context.setAttribute("responseQueue",responseQueue);
         System.out.println("processQueue has been initialized!");
         context.setAttribute("dayNum", 0);
         context.setAttribute("chunkSize", chunckSize);
@@ -37,12 +46,26 @@ public class SkierListener implements ServletContextListener, ServletContextAttr
         scheduler = Executors.newSingleThreadScheduledExecutor();
         Runnable loadTask = new ScanTimerTask(processQueue, skierDAO, chunckSize);
         scheduler.scheduleAtFixedRate(loadTask, 10, 3, TimeUnit.SECONDS);
-        System.out.println("Task has been scheduled!");
+        System.out.println("Load task has been scheduled!");
+
+        responseScheduler = Executors.newSingleThreadScheduledExecutor();
+        file = new File("/usr/tmp/responseData.dat");
+        try{
+            file.createNewFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        context.setAttribute("file", file);
+        Runnable responseTask = new ResponseTimerTask(responseQueue, file, 20000);
+        responseScheduler.scheduleAtFixedRate(responseTask, 10, 10, TimeUnit.SECONDS);
+        System.out.println("Response task has been scheduled!");
     }
 
     public void contextDestroyed(ServletContextEvent sce) {
         skierDAO.destroyConnection();
         scheduler.shutdown();
+        responseScheduler.shutdown();
+        file.delete();
     }
 
     public void attributeAdded(ServletContextAttributeEvent sce) {
